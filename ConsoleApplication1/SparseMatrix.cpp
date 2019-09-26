@@ -4,10 +4,11 @@
 #include "SparseMatrix.h"
 
 #define ESC 27
+#define ENTER 13
 
 namespace sm {
 
-	bool getNum(int& num)
+	static bool getNum(int& num)
 	{
 		int n;
 		std::cin >> n;
@@ -20,7 +21,7 @@ namespace sm {
 		return g;
 	}
 
-	void input_par(int &par)
+	static void input_par(int &par)
 	{
 		int a;
 		while (true)
@@ -48,17 +49,18 @@ namespace sm {
 		}
 	}
 
-	void set(SparseMatrix* mat, int i, int j, int data)
+	static RC set(SparseMatrix* mat, int i, int j, int data)
 	{
 		if (!mat || i < 0 || i >= mat->m || j < 0 || j >= mat->n)
-			return;
+			return EC_BAD;
 
 
 		// find row
 
 		Row* crow = mat->srow;
 
-		if (!crow) {
+		if (!crow)
+		{
 
 			mat->srow = new Row;
 			mat->srow->i = i;
@@ -69,8 +71,10 @@ namespace sm {
 			mat->srow->scell->data = data;
 
 		}
-		else {
-			if (i < crow->i) { // found in begin
+		else
+		{
+			if (i < crow->i)
+			{ // found in begin
 
 				mat->srow = new Row;
 				mat->srow->i = i;
@@ -81,33 +85,42 @@ namespace sm {
 				mat->srow->scell->data = data;
 
 			}
-			else { // mid/end
+			else
+			{ // mid/end
 
-				while (i >= crow->i) {
-					if (i == crow->i) {
+				while (i >= crow->i)
+				{
+					if (i == crow->i)
+					{
 
 						// found
 
 						Cell* ccell = crow->scell;
 
-						if (j < ccell->j) { // cell begin
+						if (j < ccell->j)
+						{ // cell begin
 							crow->scell = new Cell;
 							crow->scell->next = ccell;
 							crow->scell->j = j;
 							crow->scell->data = data;
 							break;
 						}
-						else { // cell mid/end
+						else
+						{ // cell mid/end
 
-							while (j >= ccell->j) {
+							while (j >= ccell->j)
+							{
 
-								if (j == ccell->j) {
+								if (j == ccell->j)
+								{
 									ccell->data = data;
 									break;
 								}
-								else if (ccell->next) {
+								else if (ccell->next)
+								{
 
-									if (j < ccell->next->j) {
+									if (j < ccell->next->j)
+									{
 										Cell* oldnext = ccell->next;
 										ccell->next = new Cell;
 										ccell->next->next = oldnext;
@@ -115,13 +128,15 @@ namespace sm {
 										ccell->next->data = data;
 										break;
 									}
-									else {
+									else
+									{
 										ccell = ccell->next;
 										continue;
 									}
 
 								}
-								else { // last cell
+								else
+								{ // last cell
 									ccell->next = new Cell;
 									ccell->next->next = nullptr;
 									ccell->next->j = j;
@@ -134,8 +149,10 @@ namespace sm {
 						}
 
 					}
-					else if (crow->next) {
-						if (i < crow->next->i) {
+					else if (crow->next)
+					{
+						if (i < crow->next->i)
+						{
 							Row* oldnext = crow->next;
 							crow->next = new Row;
 							crow->next->next = oldnext;
@@ -146,12 +163,14 @@ namespace sm {
 							crow->next->scell->data = data;
 							break;
 						}
-						else {
+						else
+						{
 							crow = crow->next;
 							continue; // advance
 						}
 					}
-					else { // if last elem
+					else
+					{ // if last elem
 						crow->next = new Row;
 						crow->next->next = nullptr;
 						crow->next->i = i;
@@ -166,65 +185,107 @@ namespace sm {
 
 			}
 		}
+		return EC_GOOD;
 	}
 
 
 	SparseMatrix* input()
 	{
 		char Continue;
+		int m, n;
 		SparseMatrix* mat = new SparseMatrix;
 
-		std::cout << "Enter m: ";
-		input_par(mat->m);
+		while (true)
+		{
+			std::cout << "Enter m: ";
+			input_par(m);
+			if (m < 1)
+			{
+				std::cout << "Error, too small m" << std::endl;
+				continue;
+			}
+			else
+			{
+				mat->m = m;
+				break;
+			}
+		}
 
-		std::cout << "Enter n: ";
-		input_par(mat->n);
+		while (true)
+		{
+			std::cout << "Enter n: ";
+			input_par(n);
+			if (n < 1)
+			{
+				std::cout << "Error, too small n" << std::endl;
+				continue;
+			}
+			else
+			{
+				mat->n = n;
+				break;
+			}
+		}
 
 		int i, j, data;
 
-		while (1)
+		while (true)
 		{
 			std::cout << "Input i, j and data of cell: " << std::endl;
 			std::cout << "i: ";
 			input_par(i);
+			if (i >= mat->m)
+			{
+				std::cout << "Error, i bigger than m, try again" << std::endl;
+				continue;
+			}
 			std::cout << "j: ";
 			input_par(j);
+			if (j >= mat->n)
+			{
+				std::cout << "Error, j bigger than n, try again" << std::endl;
+				continue;
+			}
 			std::cout << "data of cell: ";
 			input_par(data);
 
 			if (data != 0)
 				set(mat, i, j, data);
 
-			std::cout << "Press ESC to out or press Enter to continue: ";
-			Continue = _getch();
-			if (Continue == ESC)
+			while (true)
 			{
-				std::cout << "ESC" << std::endl;
-				break;
+				std::cout << "Press ESC to out or press Enter to continue: ";
+				Continue = _getch();
+				if (Continue == ESC)
+				{
+					std::cout << "ESC" << std::endl;
+					return mat;
+				}
+				if (Continue == ENTER)
+				{
+					std::cout << "Continue" << std::endl;
+					break;
+				}
+				std::cout << std::endl;
 			}
-			else
-			{
-				std::cout << "Continue" << std::endl;
-			}
-
 		}
 
 		return mat;
 	}
 
-	void get_am(int a, int *b)
+	static void get_am(int a, int *b)
 	{
 		int count = 1;
 		int d = 10;
-		while (a >= d) 
-		{ 
-			d *= 10; 
-			count++; 
+		while (a >= d)
+		{
+			d *= 10;
+			count++;
 		}
 		*b = count;
 	}
 
-	void crit_1(int **ln, int len)
+	static void crit_1(int **ln, int len)
 	{
 		int sum = 0;
 		int b = 0;
@@ -249,7 +310,7 @@ namespace sm {
 	}
 
 
-	bool is_in(int a, int *ln, int len)
+	static bool is_in(int a, int *ln, int len)
 	{
 		for (int i = 0; i < len; i++)
 		{
@@ -277,11 +338,11 @@ namespace sm {
 		if (crow)
 			ccell = crow->scell;
 
-		while (crow) 
+		while (crow)
 		{
 			Cell* ccell_2 = ccell;
 
-			while (ccell) 
+			while (ccell)
 			{
 				line[counter] = ccell->data;
 				ccell = ccell->next;
@@ -301,7 +362,7 @@ namespace sm {
 
 			for (int i = 0; i < mat->n; i++)
 				line[i] = 0;
-			
+
 
 			crow = crow->next;
 			if (crow)
@@ -311,10 +372,10 @@ namespace sm {
 		return mat_2;
 	}
 
-	void output(SparseMatrix* mat)
+	RC output(SparseMatrix* mat)
 	{
 		if (!mat)
-			return;
+			return EC_BAD;
 
 
 		std::cout << "[" << mat->m << " x " << mat->n << "]" << std::endl;
@@ -325,9 +386,9 @@ namespace sm {
 		if (crow)
 			ccell = crow->scell;
 
-		while (crow) 
+		while (crow)
 		{
-			while (ccell) 
+			while (ccell)
 			{
 				std::cout << "(" << crow->i << " " << ccell->j << ") " << ccell->data << std::endl;
 				ccell = ccell->next;
@@ -339,23 +400,24 @@ namespace sm {
 			if (crow)
 				ccell = crow->scell;
 		}
-
-		std::cout << std::endl;
+		return EC_GOOD;
 	}
 
 
-	void erase(SparseMatrix* mat)
+	RC erase(SparseMatrix* mat)
 	{
 		if (!mat)
-			return;
+			return EC_BAD;
 
 
 		Row* tmprow;
-		while (mat->srow) {
+		while (mat->srow)
+		{
 			tmprow = mat->srow->next;
 
 			Cell* tmpcell;
-			while (mat->srow->scell) {
+			while (mat->srow->scell)
+			{
 				tmpcell = mat->srow->scell->next;
 				delete mat->srow->scell;
 				mat->srow->scell = tmpcell;
@@ -364,6 +426,7 @@ namespace sm {
 			delete mat->srow;
 			mat->srow = tmprow;
 		}
+		return EC_GOOD;
 	}
 
 }

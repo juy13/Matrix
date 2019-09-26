@@ -33,20 +33,26 @@ namespace sm
 		Row* srow = nullptr;
 	};
 
-	bool getNum(int& num);
+	typedef enum err_codes
+	{
+		EC_GOOD = 0,
+		EC_BAD
+	}RC;
 
-	void set(SparseMatrix* mat, int i, int j, int data);
+	static bool getNum(int& num);
+
+	static RC set(SparseMatrix* mat, int i, int j, int data);
 
 	SparseMatrix* input();
 	SparseMatrix* by_criterion(SparseMatrix* mat);
-	void output(SparseMatrix* mat);
+	RC output(SparseMatrix* mat);
 	void input_par(int &par);
 
-	void erase(SparseMatrix* mat);
+	RC erase(SparseMatrix* mat);
 
-	void crit_1(int **ln, int len);
-	void get_am(int a, int *b);
-	bool is_in(int a, int *ln, int len);
+	static void crit_1(int **ln, int len);
+	static void get_am(int a, int *b);
+	static bool is_in(int a, int *ln, int len);
 
 }
 

@@ -99,7 +99,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
@@ -151,11 +151,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\AAK\Desktop\SparseMatrix\SparseMatrix.h" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SparseMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\AAK\Desktop\SparseMatrix\main.cpp" />
-    <ClCompile Include="C:\Users\AAK\Desktop\SparseMatrix\SparseMatrix.cpp" />
+    <ClInclude Include="SparseMatrix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
